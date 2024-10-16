@@ -19,8 +19,166 @@
 
 \section{MPlus}
 
+Variable:
+Names are
+<<<Exact order of variables from original file pasted with each var on new line>>>
+! Bear in mind MPlus only reads out 8 characters, so must identify the var uniquely in 8 characters or less.
+
+Data:
+! If the dataset is in the same folder as your script, then all we need is:
+File is <<<data.csv>>>
+! Making sure you've then deleted the extra sheet and column row that the data will be pulled.
+
+USEVARIABLES ARE
+<<<Paste variable names, vertically. Order slightly matters: first list vars in the original data, then list the created vars.>>>
+
+! We need to tell MPlus that its a categorical variable, but only if it's the outcome variable. E.g.:
+! CATEGORICAL = AUDIT16
+! COUNT = AUDIT (NB) !Where NB stands for negative binomial.
+
+DEFINE:
+! All manipulation happens here. if then etc.
+! E.g., acesum = sum (ACES1
+ACES2
+ACES3)
+! We have normal numeric logical operators (EQ, GT, NE, <, =).
+! Be aware you can't have two numeric code signs on a line. Would need to be 'if age LT 30 THEN YA = 1, for example. 
+
+MISSING ARE ALL (<<<LIST THE MISSING CODES, e.g. -99, -98>>>)
+
+Analysis:
+! Tell MPlus what it is you're doing. E.g. ESTIMATOR = ML; PROCESSORS = 4
+
+MODEL:
+! 3 main commands here: ON, WITH, BY. ON is reg, WITH is cor, BY is latent. E.g:
+! BPCL ON
+! COMBAT12
+! PHQ
+! ACESUM
+! ;
+! Would be regressing BPCL as the predictor, COMBAT12 as a control.
+
+! We then label by putting parentheses after our variable name on the same line. Doesn't do anything at the basic level.
+
+Output:
+! What we want to see after the model - not that important right now. SAMPSTAT for STDYX.
+! We also have TECH outputs (TECH1 through TECH14 or something) for extended technical outputs.
+
+Plot:
+! Obvious - for plotting.
+
 \section{Exploratory and Confirmatory Factor Analysis}
 
+Factor analyses: information reliability, item quality, and construct validity for measure
+development.
+Think Cronbach's alpha, etc.
+In general, measurement development would start with a huge amount of items (30, 40, in anger measures for example).
+We would then distribute and run a factor analysis to see what works well, and continue to refine.
+The factor here is the underlying hypothetical construct.
+
+Latent variables are technically error-free - that is, there would be no measurement error on the latent variable.
+However, the classic depiction of a single latent variable and a single measure is (almost) impossible. You need to have 3 items to create a latent factor.
+
+When we create a latent variable, the math considers the mean, variance, and error, and we're 'pushing' the latent variable into different places.
+Items that correlate most with each other will be clustered together into a single factor.
+
+In EFA, its up to the researcher to determine the best structure given the data you are given.
+There are some set criteria to reference, but ultimately it is a subjective exercise.
+
+Intrinsically, we don't know the actual meaning of factors; theory decides what they mean.
+Factors may also be related or not related - correlated or orthogonal (uncorrelated).
+
+High correlations (e.g. .8) basically suggests they are the same and are not that valid (are they even different?).
+Similarly, correlations of 0 might suggest they are nothing alike.
+We might look for correlations around .2.
+
+Load values between 0 and 1: items get load values, and items may be elimitated by the researcher if they do not load highly. 
+A conservative threshold is .4, although people go down to .3 often.
+The researcher must determine the simplest structure possible that retains the most information.
+
+Eigenvalues.
+The first thing to look at in an EFA.
+This is the first indicator of the number of factors you want to investigate.
+The usual rule of greater than 1.0 (the Kaiser-Guttman rule) for an Eigenvalue applies, where 1.0 is a MINIMUM threshold.
+We plot number of factors on x and eigenvalues on y, and we look for the point at which the eigenvalues stop decreasing and go flat, and then we go back one on the $x$ axis.
+They represent the amount of variance accounted for by the factors, so we want to maximize variance captured with minimum number of factors (simple structures).
+
+Factor rotations.
+These concern how the data is rotated to construct the factor.
+MPlus has options: GEOMIN is preferred by Jordan, but there is literature out there about factor rotation when we believe we have orthogonality.
+
+# CFA.
+
+Usually comes after an EFA, that we developed a (new) measure from.
+We start with a hypothesis about how many factors there are, and which items load in which factors.
+In CFA, items only load on the factor we expect.
+We have no cross-over of item loadings across factors.
+
+Fit indices.
+For ALL SEM MODELS, we use: Chi-square, RMSEA, SRMR, Comparative Fit Index, Tucker-Lewis Index.
+Chi-square will almost always be significant, and is not used much.
+Comparative Fit Index (CFI); greater than .95 is considered excellent model fit.
+Values of .8 is okay for compex models (although controversial in some statistical circles).
+Tucker-Lewis is rare to consider explicitly but is often reported.
+RMSEA and SRMR, lower values are better model fit (< .06 and < .08 respectively indiciate good fit). 
+In practice, we look at a combination of model fit statistics.
+
+Cross loadings.
+When an item loads on two factors, similarly (i.e. loading values of .50 and .48 on two factors).
+We can have models that allow for cross-loadings, but generally, we would remove items that cross-loaded.
+We might also consider keeping them as they may not cross-load in other samples for the measure to be used on.
+
+Validity test(s).
+Do my factors correlate in the right ways with the other right variables?
+
+---- Practice
+
+In MPlus: ANALYSIS: TYPE = EFA 1 6; (we will extract 1 to 6 factors for an EFA).
+
+Look at Eigenvalue elbow threshold and related model fit.
+But then, let's look at our GEOMIN rotated loadings and GEOMIN factor correlations.
+We can bring these loading values into an Excel file, alongside the items and the item labels.
+Look for crossloadings.
+If nothing is loading on a factor, we would consider dropping to a $k-1$ factor structure.
+
+Mod(ification) indices allow you to create covariance of error terms that improve model fits.
+It is done all the time.
+
+Data will use the ins columns for this week's replication exercise (or also the im, it shouldn't matter).
+
 \section{Unconditional Linear Growth Models}
+
+Reminder: oberved in squares, circle as latent. Arrow points to the thing it is effecting.
+In SEM, double headed arrow is correlation.
+
+In a latent growth, we're not looking at individual-level heterogeneity,
+it's just average change in that measure.
+
+You need 3 time points, at absolute minimum, to construct a latent growth model.
+At any less, you cannot construct a slope.
+
+Intercept can be considered as value at 'baseline'.
+
+Latent slope equation
+
+Four things that one can manipulate in a latent growth model. 
+The mean
+(the average starting point of my sample for the intercept),
+the variance
+(the mean change of the sample over time),
+co-variance 
+(or correlation, between the intercept and slope for example),
+and residual variances
+(the errors of observed; what's left over once we've pushed everything we can into the
+intercept and slope).
+
+You constrain all of the effects of the intercept onto the observed vars to 1.
+This is equivalent to saying that these measured variables (which have a mean and a variance)
+have their average and variance 'pushed' to 1. It takes the value of time 1 and it pushes
+the rest of the variance and mean into the intercept. All that would be left is the error.
+
+What this means for the slope, for time 1 we constrain to 0, time 2 to 1, time 3 to 2.
+This makes sense because it's the 'score' times 1 at time 2 (there can be no change at time 1),
+'score' times 2 at time 3 (our second change).
 
 \end{document}
