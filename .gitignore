@@ -1,3 +1,15 @@
+### DATA ###
+
+*.csv
+
+### MPLUS ###
+*.inp
+
+### PDFs ###
+*.pdf
+
+### LATEX ###
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
