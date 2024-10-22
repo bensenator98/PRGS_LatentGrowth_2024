@@ -6,6 +6,9 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[skip=10pt]{caption}
+\usepackage{float}
 
 \begin{document}
 
@@ -17,8 +20,113 @@
 
 \section{Analytic Plan}
 
+In this analysis, I estimate a linear latent growth model with two latent factors: intercept and slope.
+Both are constructed from PHQ scores, with time specified by the indicator 'a' through 'f'.
+The model allows individual outcomes to change linearly over time.
+Rates of change can differ \textit{across} individuals, but not \textit{within}.
+In its basic form, the model is given by the following equation:
+
+\[ y_{ti} = (\beta_1 + d_{1i}) + (\beta_2 + d_{2i}) * (\frac{1-k_1}{k_2}) + u_{ti} \]
+
+such that the estimated mean intercept $\beta_1$ and slope $\beta_2$ present the predicted average PHQ score for the sample when $t = k_1$ and the predicted average rate of change in PHQ scores for the sample with respect to the chosen time metric (i.e., in this specification, $t/k_2$).
+In this model, the variances of the intercept ($\sigma_1^2$) and the slope ($\sigma_2^2$) indicate the magnitude of between-person differences in predicted PHQ scores when $t = k_1$, and in the rate of change, respectively.
+The covariance, $\sigma_{21}$, indicates the degree to which individual deviations in the intercept are associated with individual deviations in the rate of change.
+
+In MPlus, the above is specified in the \texttt{MODEL} command as follows:
+
+\begin{verbatim}
+    PHQ_INT BY  PHQ@1
+        bPHQ@1
+        cPHQ@1
+        dPHQ@1
+        ePHQ@1
+        fPHQ@1; !Constrain to 1 (intercept)
+    PHQ_INT;
+    [PHQ_INT];
+    PHQ_SLP BY  PHQ@0
+        bPHQ@1
+        cPHQ@2
+        dPHQ@3
+        ePHQ@4
+        fPHQ@5;
+    PHQ_SLP;
+    [PHQ_SLP];
+    PHQ_INT WITH PHQ_SLP;
+    PHQ-fPHQ (theta);
+    [PHQ-FPHQ@0];
+\end{verbatim}
+
+where \texttt{PHQ\_INT} and \texttt{PHQ\_SLP} are the latent intercept and slope factors, respectively, and \texttt{PHQ-fPHQ} are the observed PHQ score at each time point.
+\texttt{PHQ\_INT WITH PHQ\_SLP} specifies covariance between the two latent factors, and \texttt{PHQ-fPHQ} specifies residual variance. \texttt{[PHQ-FPHQ@0]} constrains the intercepts of the observed PHQ scores, because the mean structure is derived from the latent variables. The estimation method was specified as maximum likelihood.
+
 \section{Results}
 
+\textbf{Model Fit}. Relevant model fit statistics are presented in Table \ref{tab:Model Fit}. Overall, the model fit was poor, with a significant chi-square test of model fit, a RMSEA and SRMR of 0.114, and a CFI of 0.842. Other than Chi-Square, none of these statistics meet thresholds for conventional good fit. 
 
+\begin{table}[ht]
+    \centering
+    \caption{Model Fit Statistics} \label{tab:Model Fit}
+    \begin{tabular}{l c}
+    \toprule
+    & \textbf{Value} \\
+    \midrule
+    \textbf{Chi-Square Test of Model Fit} & \\
+    Value & 356.242 \\
+    Degrees of Freedom & 21 \\
+    P-Value & 0.0000 \\
+    \midrule
+    \textbf{RMSEA (Root Mean Square Error Of Approximation)} & \\
+    Estimate & 0.114 \\
+    90 Percent C.I. & 0.104 - 0.124 \\
+    Probability RMSEA $\leq$ 0.05 & 0.000 \\
+    \midrule
+    \textbf{CFI/TLI} & \\
+    CFI & 0.842 \\
+    TLI & 0.887 \\
+    \midrule
+    \textbf{SRMR (Standardized Root Mean Square Residual)} & \\
+    Value & 0.114 \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+The results of the latent growth model are presented in Table \ref{tab:Model Results}. 
+The mean intercept and slope were 7.769 and 0.289, respectively, indicating that the average PHQ score at time 1 was 7.769, and the average rate of marginal change in PHQ scores over time was 0.289. 
+There was significant variance in the intercept (13.528) and slope (0.286), indicating that there were substantial individual differences in both the initial PHQ score and the rate of change in PHQ scores. 
+The covariance between the intercept and slope was -1.342, providing evidence that suggests individuals with higher initial PHQ scores at time 1 had a steeper decline in PHQ scores over time compared to individuals with lower initial PHQ scores.
+Finally, the residual variance of the observed PHQ scores was 7.753, indicating that the latent growth model accounted for some but not all of the variance in the observed PHQ scores, but not all.
+
+\begin{table}[ht]
+    \centering
+    \caption{Linear Growth Model Results} \label{tab:Model Results}
+    \begin{tabular}{l c c c c}
+        \toprule
+        & Estimate & S.E. & Est./S.E. & p-Value \\
+        \midrule
+        \textbf{PHQ\_INT BY} & & & & \\
+        PHQ-FPHQ & 1.000 & 0.000 & 999.000 & 999.000 \\
+        \midrule
+        \textbf{PHQ\_SLP BY} & & & & \\
+        PHQ-FPHQ & 0.000 & 0.000 & 999.000 & 999.000 \\
+        \midrule
+        \textbf{PHQ\_INT WITH} & & & & \\
+        PHQ\_SLP & -1.342 & 0.142 & -9.444 & 0.000 \\
+        \midrule
+        \textbf{Means} & & & & \\
+        PHQ\_INT & 7.769 & 0.121 & 63.980 & 0.000 \\
+        PHQ\_SLP & 0.289 & 0.027 & 10.873 & 0.000 \\
+        \midrule
+        \textbf{Intercepts} & & & & \\
+        PHQ-FPHQ & 0.000 & 0.000 & 999.000 & 999.000 \\
+        \midrule
+        \textbf{Variances} & & & & \\
+        PHQ\_INT & 13.528 & 0.749 & 18.068 & 0.000 \\
+        PHQ\_SLP & 0.286 & 0.036 & 7.853 & 0.000 \\
+        \midrule
+        \textbf{Residual Variances} & & & & \\
+        PHQ-FPHQ & 7.753 & 0.176 & 44.005 & 0.000 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
 \end{document}
